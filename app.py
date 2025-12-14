@@ -148,8 +148,8 @@ st.markdown("""
 # --- 2. INTELLIGENCE LOADER ---
 @st.cache_resource
 def load_nlp():
-    try:
-        return spacy.load("en_core_web_sm")
+    # The model is now installed via requirements.txt
+    return spacy.load("en_core_web_sm")
     except:
         import subprocess
         subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
