@@ -12,15 +12,14 @@ import uuid
 from datetime import datetime
 from streamlit_gsheets import GSheetsConnection
 
-
 # --- 1. CONFIGURATION & THEME ---
 st.set_page_config(
-    page_title="Tether // Stroma Labs",
+    page_title="Tether.",
     page_icon="🧬",
     layout="centered",
     initial_sidebar_state="collapsed",
     menu_items={
-        'Get Help': 'mailto:stromalabs.logic@gmail.com',
+        'Get Help': 'mailto:stromalabs@proton.me',
         'About': "# Tether \n Semantic Resume Analysis Engine."
     }
 )
@@ -54,7 +53,7 @@ def load_nlp():
 
 nlp = load_nlp()
 
-# The Lexicon (Simplified for V4)
+# The Lexicon
 BUILDER_VERBS = [
     "architected", "built", "created", "designed", "developed", "devised", 
     "engineered", "established", "founded", "formulated", "implemented", 
@@ -130,7 +129,7 @@ def analyze_archetype(text):
         "weaknesses": weaknesses, "length": len(text)
     }
 
-# --- 3. THE BRAIN (GEMINI NARRATIVE V3) ---
+# --- 3. THE BRAIN (GEMINI NARRATIVE) ---
 def generate_stroma_report(text, analysis, api_key):
     try:
         genai.configure(api_key=api_key)
@@ -150,7 +149,7 @@ def generate_stroma_report(text, analysis, api_key):
         You are 'Tether', a career architect engine from Stroma Labs.
         You are analyzing a professional profile.
         
-        **DNA SIGNAL (Logic V3):**
+        **DNA SIGNAL:**
         - Identity: {identity_context}
         - Builder Score: {b}
         - Operator Score: {o}
@@ -186,7 +185,7 @@ def generate_stroma_report(text, analysis, api_key):
     except Exception as e:
         return f"System Signal Lost: {str(e)}"
 
-# --- 4. DATA LOGGING (THE VAULT V2) ---
+# --- 4. DATA LOGGING ---
 def scrub_pii(text):
     text = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '<EMAIL_REDACTED>', text)
     text = re.sub(r'\+?\d[\d -]{8,15}\d', '<PHONE_REDACTED>', text)
@@ -228,19 +227,22 @@ def main():
     if 'session_id' not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())
 
-    st.title("Tether // Stroma Labs")
+    # HEADER
+    st.title("Tether")
     st.markdown("""
-    Most resumes are lists of tasks. This is a friction point that obscures your value.
-    
+    Most resumes are lists of tasks. This obscures your value.
     Tether decodes your professional DNA to measure your signal across the 
     **Builder**, **Operator**, and **Bridge** spectrum.
     
-    We identify your core strengths (including unique hybrid profiles) and architect a 
-    narrative that reflects your true impact value.
+    **SYSTEM PROTOCOL & PRIVACY**
+    * **Encryption:** Personal information are **automatically destroyed** before analysis.
+    * **The Vault:** We log *only* anonymized semantic patterns to refine the Stroma Engine.
+    * **Usage:** Your data is never sold. It is used exclusively to architect your narrative and train internal models.
     """)
     
+    # INPUT
     st.write("---")
-    text_input = st.text_area("Input Professional Narrative (Resume Bullets):", height=250)
+    text_input = st.text_area("Paste your full resume:", height=250)
     
     if st.button("Analyze Signal"):
         if not text_input or len(text_input) < 50:
@@ -264,22 +266,16 @@ def main():
                 # 4. VISUALIZE
                 st.write("---")
                 
-                c1, c2, c3 = st.columns(3)
+                # Clean Metric Layout
+                c1, c2 = st.columns(2)
                 
-                # Metric 1: The Label (Dynamic)
+                # Metric 1: Identity
                 label_display = analysis['label']
                 if analysis['is_hybrid']:
-                    c1.metric("Archetype Identity", label_display)
-                    c1.caption(f"{analysis['primary']} + {analysis['secondary']}")
-                else:
-                    c1.metric("Archetype Identity", label_display)
-                    c1.caption("Dominant Signal")
-                    
-                c2.metric("Passive Noise", f"{len(analysis['weaknesses'])} instances")
-                c2.caption("Weak Verbs Detected")
+                    label_display = f"{analysis['label']} ({analysis['primary'][0]}+{analysis['secondary'][0]})"
                 
-                c3.metric("Signal Strength", f"{analysis['length']} chars")
-                c3.caption("Data Volume")
+                c1.metric("Dominant Signal", label_display)
+                c2.metric("Weak Verbs Detected", f"{len(analysis['weaknesses'])}")
                 
                 # Chart
                 chart_data = pd.DataFrame({
@@ -304,12 +300,21 @@ def main():
                 )
                 
                 st.altair_chart(chart, use_container_width=True, theme="streamlit")
-                
                 # 5. REPORT
                 st.subheader("The Stroma Audit")
                 st.markdown(report)
                 
-                st.caption(f"Session ID: {st.session_state.session_id} | Stroma Labs v4.0 (Logic v3)")
+                st.write("---")
+                
+                # 6. FOOTER
+                st.markdown(
+                    """
+                    <div style='text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 12px; margin-top: 20px; font-weight: 300;'>
+                        © 2025 Stroma Labs. All rights reserved.
+                    </div>
+                    """, 
+                    unsafe_allow_html=True
+                )
 
 if __name__ == "__main__":
     main()
